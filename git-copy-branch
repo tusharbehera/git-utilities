@@ -1,0 +1,22 @@
+#!/bin/bash
+
+BRANCHES=$(git branch -a)
+
+if [ $# -ne 2 ]; then
+	echo "Syntax: git copy-branch \"source pattern\" \"prefix\""
+	exit
+fi
+
+SOURCE_PATTERN=$1
+PREFIX=$2
+
+for i in $BRANCHES; do
+	is_match=`expr match $i $SOURCE_PATTERN`
+	if [ $is_match -ne 0 ]; then
+		LIST=$LIST" "$i
+		new_branch=${i//$SOURCE_PATTERN}
+		git branch $PREFIX$new_branch $i
+		echo $PREFIX$new_branch
+	fi
+done
+
