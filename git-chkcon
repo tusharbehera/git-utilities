@@ -1,0 +1,68 @@
+#!/bin/bash
+
+function check_merge_conflict_status()
+{
+	count=$(git diff | grep HEAD | wc -l);
+
+	if [ $count -ne 0 ]; then
+		echo $count" conflict(s) unresolved.";
+		git diff --stat
+		return 1;
+	else
+		count=$(git diff | grep -E "<<<|===|>>>" | wc -l);
+		if [ $count -ne 0 ]; then
+			echo $count" conflict resolution marker(s) still present";
+			git diff | grep -E "<<<|===|>>>"
+			return 1;
+		fi
+	fi
+
+	echo "No conflict found. Tree looks good."
+	return 0;
+}
+
+function check_continue_option()
+{
+	printf "%s " $1
+	read opt
+	if [ ! $opt ]; then
+		return 1
+	fi
+	if [ $opt = 'n' ]; then
+		return 0
+	fi
+	return 1
+}
+
+
+function open_merge_conflicts()
+{
+	allfiles=$(git diff --stat)
+	prev_file="dummy"
+	for file in $allfiles; do
+		if [[ $file = *.* ]] || [[ $file = *defconfig ]] \
+		|| [[ $file = *Kconfig ]] || [[ $file = *Makefile ]]; then
+			if [ $prev_file != $file ]; then
+				newlist=$newlist" "$file
+				prev_file=$file
+			fi
+		fi
+	done
+	for file in $newlist; do
+		string=$(printf "Open %s [Y/n]? " $file)
+		check_continue_option "$string"
+		if [ $? = 1 ]; then
+			vim $file
+		fi
+	done
+}
+
+check_merge_conflict_status
+
+if [ $? -ne 0 ]; then
+	string="Continue to fix them [Y/n]? "
+	check_continue_option "$string"
+	if [ $? = 1 ]; then
+		open_merge_conflicts
+	fi
+fi
