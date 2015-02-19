@@ -1,0 +1,15 @@
+#!/bin/bash
+if [ $# -ge 1 ]; then
+	if [ $# -ge 2 ]; then
+		if [ $2 = "-f" ]; then
+			echo "Deleting all tags matching pattern \""$1"\""
+			git tag | grep -E $1 | xargs git tag -d
+		fi
+	else
+		echo "Showing all tags matching pattern \""$1"\""
+		echo "Use -f flag to delete."
+		git tag | grep -E $1
+	fi
+else
+	echo "Syntax: git del-tag <pattern> [-f]"
+fi
