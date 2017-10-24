@@ -8,19 +8,19 @@ ver_min=`echo $line|awk '{print $6}'`
 ver_ext=`echo $line|awk '{print $12}'`
 
 if [ -z $ver_ext ]; then
-	last_ver=$ver_min
+  last_ver=$ver_min
 else
-	last_ver=$((ver_min-1))
+  last_ver=$((ver_min-1))
 fi
 
 for i in $(seq $last_ver); do
-	REL_LIST+=" v3."$i
+  REL_LIST+=" v3."$i
 done
 
 LAST_REL="v3."$ver_min$ver_ext
 
 if [ ! -z $ver_ext ]; then
-	REL_LIST+=" "$LAST_REL
+  REL_LIST+=" "$LAST_REL
 fi
 
 PREV=$FIRST_REL
@@ -30,32 +30,32 @@ nSOB=0
 
 function print_stat()
 {
-	echo "Patch statistics for \"$author\""
-	echo "================================================="
-	printf "%-12s %-12s %-8s %s\n" "From" "To" "Author" "Signed-off-by"
-	echo "-------------------------------------------------"
-	for REL in $REL_LIST; do
-		AUTH=$(git log --oneline $PREV..$REL --author "$author" | wc -l)
-		SOB=$(git log $PREV..$REL | grep "Signed-off-by" | grep "$author" | wc -l)
-		SOB=$(($SOB - $AUTH))
-		printf "%-12s %-10s %5d\t%10d\n" $PREV $REL $AUTH $SOB
-		if [ $# -ge 2 ]; then
-			if [ $AUTH -ne 0 ]; then
-				git log --oneline $PREV..$REL --author "$author"
-			fi
-		fi
-		PREV=$REL
-		nAUTH=$(($nAUTH + $AUTH))
-		nSOB=$(($nSOB + $SOB))
-	done
-	echo "-------------------------------------------------"
-	printf "%-12s %-10s %5d\t%10d\n" $FIRST_REL $LAST_REL $nAUTH $nSOB
-	echo "================================================="
+  echo "Patch statistics for \"$author\""
+  echo "================================================="
+  printf "%-12s %-12s %-8s %s\n" "From" "To" "Author" "Signed-off-by"
+  echo "-------------------------------------------------"
+  for REL in $REL_LIST; do
+    AUTH=$(git log --oneline $PREV..$REL --author "$author" | wc -l)
+    SOB=$(git log $PREV..$REL | grep "Signed-off-by" | grep "$author" | wc -l)
+    SOB=$(($SOB - $AUTH))
+    printf "%-12s %-10s %5d\t%10d\n" $PREV $REL $AUTH $SOB
+    if [ $# -ge 2 ]; then
+      if [ $AUTH -ne 0 ]; then
+        git log --oneline $PREV..$REL --author "$author"
+      fi
+    fi
+    PREV=$REL
+    nAUTH=$(($nAUTH + $AUTH))
+    nSOB=$(($nSOB + $SOB))
+  done
+  echo "-------------------------------------------------"
+  printf "%-12s %-10s %5d\t%10d\n" $FIRST_REL $LAST_REL $nAUTH $nSOB
+  echo "================================================="
 }
 
 if [ $# -ge 1 ]; then
-	author=$1
-	print_stat
+  author=$1
+  print_stat
 else
-	echo "Syntax: git user-stat <author name>"
+  echo "Syntax: git user-stat <author name>"
 fi
