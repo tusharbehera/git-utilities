@@ -1,0 +1,11 @@
+#!/bin/bash
+
+echo "Fetching 'origin' and updating default branch is possible"
+
+git fetch origin -p
+
+for branch in master main; do
+  if git show-ref --verify --quiet refs/heads/$branch; then
+    git pull origin $branch:$branch --ff-only
+  fi
+done
