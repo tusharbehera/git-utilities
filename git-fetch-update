@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Fetching 'origin' and updating default branch is possible"
+echo "Fetching 'origin' and updating default branch (main/master) if possible"
 
 git fetch origin -p
 
