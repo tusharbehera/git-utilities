@@ -1,0 +1,25 @@
+#!/bin/bash
+
+
+if [ $# -ne 1 ]; then
+  echo "Syntax: git branch-rebase-all <branch-pattern>"
+  exit
+fi
+
+PATTERN=$1
+
+BRANCHES=$(git branch --list $PATTERN* | rev | cut -d' ' -f1 | rev)
+printf "Following branches would be rebased\n$BRANCHES\n"
+read -p "Do you want to proceed? [Y/n]: " opt
+if [ $opt == "N" ] || [ $opt == "n" ]; then
+	exit
+fi
+
+git checkout main
+git-fetch-update
+
+for br in $BRANCHES; do
+	git checkout $br
+	git rebase -i main
+done
+
